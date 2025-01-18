@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-// import { useEffect } from "react";
+import Image from "next/image";
 import { useQrCode } from "@/contexts/QrCode";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from 'zod';
@@ -15,40 +15,27 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Home() {
-  const { setUrl, dataUrl } = useQrCode();
+  const { url, setUrl, dataUrl } = useQrCode();
 
   const {
     register,
     handleSubmit,
-    // watch,
-    formState: { errors },
+    reset,
+    formState: { isSubmitted, errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
-    // mode: 'onChange', // Validate on every input change
+    mode: 'onSubmit', // Validate only on form submission
   });
 
-  // const watchUrl = watch("url");
-
-  // useEffect(() => {
-  //   if (watchUrl) {
-  //     setUrl(watchUrl);
-  //   }
-  // }, [watchUrl, setUrl]);
-
-  // useEffect(() => {
-  //   if (dataUrl) {      
-  //     saveDataUrl(dataUrl);
-  //   }
-  // }, [dataUrl]);
-
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    setUrl(data.url);
-    // console.log(data);
+    const { url } = data;
+    setUrl(url);
+    reset();
   }
 
   return (
-    <div className="flex flex-col items-center justify-between min-h-screen p-8 sm:p-20">
-      <main className="flex flex-col gap-8 items-center justify-center">
+    <div className="flex flex-col items-center justify-between min-h-screen w-full p-6 sm:p-14">
+      <main className="w-full flex flex-col gap-8 items-center justify-center">
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
           <div className="flex items-center justify-center w-full">
             <div className="w-full grow">
@@ -57,18 +44,18 @@ export default function Home() {
             </div>
             <button type="submit" className="text-lg lowercase py-1 pl-4 outline-0 border-b border-white disabled:text-white/50" disabled={!!errors.url}>Generate</button>
           </div>
-          {errors.url && <p className="text-red-500">{errors.url.message}</p>}
+          {isSubmitted && errors.url && <p className="text-red-500">{errors.url.message}</p>}
         </form>
 
-        {dataUrl && (
-          <div className="flex flex-col gap-4">
-            {/* <h2>QR Code</h2> */}
-            <img src={dataUrl} alt="QR Code" />
+        {url && dataUrl && (
+          <div className="border border-black">
+            <a href={url} target="_blank"><h2 className="text-center text-md mb-2 w-auto">{url}</h2></a>
+            <Image src={dataUrl} alt="QR Code" width={512} height={512} />
           </div>
         )}
       </main>
 
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+      <footer className="row-start-3 flex gap-6 text-xs uppercase flex-wrap items-center justify-center">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
           href="https://thesion.dev"

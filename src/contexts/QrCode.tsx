@@ -6,7 +6,7 @@ type QrCodeContextProviderProps = {
 }
 
 type QrCodeContext = {
-  // url: string | null
+  url: string | null
   dataUrl: string | null
   setUrl: (url: string) => void
 }
@@ -32,6 +32,7 @@ export function QrCodeProvider({ children }: QrCodeContextProviderProps) {
 
   return (
     <QrCodeContext.Provider value={{
+      url,
       setUrl,
       dataUrl,
     }}>
